@@ -164,3 +164,44 @@ import { collection, deleteDoc, getDoc, getDocs, query, setDoc, doc } from "fire
 //     </Box>
 //   );
 // }
+
+
+//---------------------------------------------------------
+{/* <Stack width="1000px" height="500px" spacing={0} overflow={'auto'}>
+          {inventory.map(({ name, quantity }) => (
+            <Box
+              key={name}
+              width="100%"
+              minHeight="80px"
+              display={'flex'}
+              justifyContent={'space-between'}
+              alignItems={'center'}
+              bgcolor={'#f0f0f0'}
+              paddingX={5}
+              borderBottom='1px solid #d6d2d2'
+            >
+              <Typography variant={'h4'} color={'#333'} textAlign={'center'}>
+                {name.charAt(0).toUpperCase() + name.slice(1)}
+              </Typography>
+              <Typography variant={'h4'} color={'#333'} textAlign={'center'}>
+                Quantity: {quantity}
+              </Typography>
+              <Stack direction="row" spacing={2}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    addItem(name)
+                  }}
+                >
+                  Add</Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    removeItem(name)
+                  }}
+                >
+                  Remove</Button>
+              </Stack>
+            </Box>
+          ))}
+        </Stack> */}

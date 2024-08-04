@@ -1,8 +1,18 @@
 'use client'
-
+import Image from 'next/image';
+import Icon from '../public/inventory.svg';
+import bgi from '../public/colorful-stingrayss.svg';
 import { useState, useEffect } from "react";
 import { firestore } from "@/firebase";
-import { Box, Typography, Stack, Modal, TextField, Button, Autocomplete } from "@mui/material";
+import {
+  Box, Typography, Stack, Modal, TextField, Button, Autocomplete, Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
+} from "@mui/material";
 import { collection, deleteDoc, getDoc, getDocs, query, setDoc, doc } from "firebase/firestore";
 
 const style = {
@@ -24,7 +34,7 @@ export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
-  const [searchItem, setSearchItem] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
 
   const updateInventory = async () => {
@@ -67,23 +77,20 @@ export default function Home() {
     await updateInventory()
   }
   const handleSearchChange = (event, value) => {
-    setSearchItem(value);
-  };
-
-  const handleSearch = () => {
-    if (searchItem) {
-      const searchedItem = inventory.find(item => item.name === searchItem.name);
-      if (searchedItem) {
-        alert(`Item found: ${searchedItem.name}, Quantity: ${searchedItem.quantity}`);
+    if (value) {
+      const selectedItem = inventory.find((item) => item.name === value.title);
+      if (selectedItem) {
+        alert(`Item found: ${selectedItem.name}, Quantity: ${selectedItem.quantity}`);
       } else {
         alert('Item not found');
       }
     }
   };
 
-  const options = inventory.map(item => ({
+  const options = inventory.map((item) => ({
     title: item.name,
-    firstLetter: item.name[0].toUpperCase()
+    firstLetter: item.name[0].toUpperCase(),
+    quantity: item.quantity,
   }));
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -96,6 +103,9 @@ export default function Home() {
       justifyContent={'center'}
       flexDirection={'column'}
       alignItems={'center'}
+      sx={{
+        background: `url(${bgi.src}) center / cover`
+      }}
       gap={2}
     >
       <Modal
@@ -133,72 +143,75 @@ export default function Home() {
       {/* <Button variant="contained" onClick={handleOpen}>
         Add New Item
       </Button> */}
-      <Box border={'2px solid grey'} borderRadius= {1}>
+      <Box border={'2.2px solid grey'} height={'500px'} bgcolor={'#fffcfc'} borderRadius={1}>
         <Box
-          width="800px"
+          width="1000px"
           height="100px"
-          bgcolor={'#00b0ff'}
+          bgcolor={'#90caf9'}
           display={'flex'}
           justifyContent={'center'}
           alignItems={'center'}
-        >
-          <Typography variant={'h2'} color={'#fff'} textAlign={'center'}>
-            Inventory
+        ><Image src={Icon} alt="Inventory shop" width={50} height={50} />
+          <Typography variant={'h2'} color={'#333'} textAlign={'center'} sx={{ pl: 2 }}>
+            Inventory List
           </Typography>
           <Autocomplete
             id="search-inventory"
-            color="#fff"
             options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
             groupBy={(option) => option.firstLetter}
             getOptionLabel={(option) => option.title}
-            sx={{ width: 300, pl: 10,pr: 5 }}
-            onChange={handleSearchChange}
+            sx={{ width: 350, pl: 8, pr: 2 }}
+            onChange={(event, value) => handleSearchChange(event, value)}
             renderInput={(params) => <TextField {...params} label="Search Inventory" />}
           />
           <Button
             variant="contained"
             onClick={handleOpen}
-            >
+          >
             Add New Item
           </Button>
         </Box>
-        <Stack width="800px" height="400px" spacing={2} overflow={'auto'}>
-          {inventory.map(({ name, quantity }) => (
-            <Box
-              key={name}
-              width="100%"
-              minHeight="150px"
-              display={'flex'}
-              justifyContent={'space-between'}
-              alignItems={'center'}
-              bgcolor={'#f0f0f0'}
-              paddingX={5}
-            >
-              <Typography variant={'h3'} color={'#333'} textAlign={'center'}>
-                {name.charAt(0).toUpperCase() + name.slice(1)}
-              </Typography>
-              <Typography variant={'h3'} color={'#333'} textAlign={'center'}>
-                Quantity: {quantity}
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    addItem(name)
-                  }}
-                >
-                  Add</Button>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    removeItem(name)
-                  }}
-                >
-                  Remove</Button>
-              </Stack>
-            </Box>
-          ))}
-        </Stack>
+        <TableContainer component={Paper} sx={{ maxHeight: '400px', overflow: 'auto' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontSize: '1.75rem', fontWeight: 'bold' }}  align="center">Item Name</TableCell>
+                <TableCell sx={{ fontSize: '1.75rem' , fontWeight: 'bold', }} align="center">Quantity</TableCell>
+                <TableCell sx={{ fontSize: '1.75rem' , fontWeight: 'bold',}} align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {inventory.map(({ name, quantity }) => (
+                <TableRow key={name}>
+                  <TableCell sx={{ fontSize: '1.50rem' }} align="center">
+                    {name.charAt(0).toUpperCase() + name.slice(1)}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '1.50rem' }} align="center">{quantity}</TableCell>
+                  <TableCell sx={{ fontSize: '1.50rem' }} align="center">
+                    <Box display="flex" justifyContent="center" gap={2}>
+                      <Button
+                        variant="contained"
+                        onClick={() => {
+                          addItem(name);
+                        }}
+                      >
+                        Add
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={() => {
+                          removeItem(name);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
     </Box>
 
